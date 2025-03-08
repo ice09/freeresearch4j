@@ -11,23 +11,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-  steps:
-    - uses: actions/checkout@v4
+      - name: Read .sdkmanrc
+        id: sdkmanrc
+        run: |
+          java_version=$(grep '^java=' .sdkmanrc | cut -d'=' -f2)
+          echo "java-version=$java_version" >> $GITHUB_ENV
 
-    - name: Read .sdkmanrc
-      id: sdkmanrc
-      run: |
-        java_version=$(grep '^java=' .sdkmanrc | cut -d'=' -f2)
-        echo "java-version=$java_version" >> $GITHUB_ENV
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'graalvm'
+          java-version: ${{ env.java-version }}
 
-    - uses: actions/setup-java@v4
-      with:
-        distribution: 'graalvm'
-        java-version: ${{ env.java-version }}
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: Build with Gradle
-      run: ./gradlew build
+      - name: Build with Gradle
+        run: ./gradlew build
