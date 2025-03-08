@@ -1,0 +1,13 @@
+### Test OpenAI API Mock
+POST http://localhost:8080/v1/chat/completions
+Content-Type: application/json
+
+{
+  "model": "gpt-4o",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello!"
+    }
+  ]
+}
