@@ -1,6 +1,8 @@
 package indus340.tech.freeresearch4j.engine;
 
+import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
 
 public interface Assistant {
 
@@ -23,7 +25,7 @@ public interface Assistant {
             When to Use: When the user request involves gathering information or verifying details on the web, especially if multiple sources need to be identified. This tool is your starting point for broad searches before possibly fetching content with getContentFromURL.
             Integration: Combine the output from this tool with further processing steps (e.g., using crawl to fetch detailed information from a selected result).
             4. Extract text from PDF
-            Purpose: Use this tool to extract text from a PDF. The PDF file is handled externally, you just have to call the method if text extraction and a document is referenced.
+            Purpose: Use this tool to extract text from a PDF. The PDF file is handled externally, you just have to call the method if text extraction and a document or PDF is referenced.
             When to Use: Whenever text extraction from a document or PDF is mentioned.
             
             Combined Workflow Instructions
@@ -41,7 +43,8 @@ public interface Assistant {
             
             Follow these guidelines precisely when generating your responses. Use the appropriate tool based on the task's requirements to build effective, multi-step workflows that combine JavaScript execution with live web data retrieval and search functionalities.
             Use a good format for display, preferably markdown.
+            When you get passed a chatId, you always have to provide this to the tools as first argument when you are calling them.
         """)
-    String chat(String message);
+    String chat(@MemoryId int memoryId, @UserMessage String message);
 
 }

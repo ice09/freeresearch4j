@@ -2,7 +2,7 @@
 package indus340.tech.freeresearch4j.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import indus340.tech.freeresearch4j.engine.Assistant;
 import indus340.tech.freeresearch4j.tools.OCRTool;
 import org.springframework.http.MediaType;
@@ -20,35 +20,36 @@ import java.util.UUID;
 public class DeepResearch4jController {
 
     private final Assistant assistant;
-    private final ChatMemory chatMemory;
+    private final ChatMemoryProvider chatMemoryProvider;
     private final ObjectMapper objectMapper;
     private final OCRTool ocrTool;
 
-    public DeepResearch4jController(Assistant assistant, ChatMemory chatMemory, ObjectMapper objectMapper, OCRTool ocrTool) {
+    public DeepResearch4jController(Assistant assistant, ChatMemoryProvider chatMemoryProvider, ObjectMapper objectMapper, OCRTool ocrTool) {
         this.assistant = assistant;
-        this.chatMemory = chatMemory;
+        this.chatMemoryProvider = chatMemoryProvider;
         this.objectMapper = objectMapper;
         this.ocrTool = ocrTool;
     }
 
     @DeleteMapping("/chat/completions")
-    public ResponseEntity<String> resetChatMemory() {
-        chatMemory.clear();
+    public ResponseEntity<String> resetChatMemory(@RequestParam("chatId") String chatId) {
+        chatMemoryProvider.get(chatId).clear();
         return ResponseEntity.ok("ok");
     }
 
     @PostMapping(value = "/chat/completions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ChatCompletionResponse> createChatCompletion(
             @RequestPart("message") String messagesJson,
+            @RequestPart("chatId") String chatId,
             @RequestPart(value = "file", required = false) MultipartFile file) {
         try {
             // Parse the incoming JSON messages
             Message request = objectMapper.readValue(messagesJson, Message.class);
             String requestMessage = request.content();
             if (file != null) {
-                ocrTool.setPdfAsBytes(file.getBytes());
+                ocrTool.setPdfAsBytes(Integer.parseInt(chatId), file.getBytes());
             }
-            String answer = assistant.chat(requestMessage);
+            String answer = assistant.chat(Integer.parseInt(chatId), requestMessage);
 
             // Create a mock response simulating an OpenAI completion.
             ChatCompletionResponse response = new ChatCompletionResponse(

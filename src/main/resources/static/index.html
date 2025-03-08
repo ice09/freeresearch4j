@@ -195,7 +195,7 @@
       \/   |_|  \___|\___\/ \_/\___||___/\___|\__,_|_|  \___|_| |_|  |_|_/ |
                                                                        |__/
       </pre>
-    <button id="newChatBtn" onclick="newChat()">💬</button>
+        <button id="newChatBtn" onclick="newChat()">💬</button>
     </div>
     <div id="chatLog" class="chat-log"></div>
     <div class="chat-input">
@@ -226,10 +226,22 @@
         breaks: true
     });
 
-    // Initialize chat history.
+    // Retrieve chat history and chat id from localStorage.
     let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+    let chatId = localStorage.getItem('chatId') || null;
+
     function saveChatHistory() {
         localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+    }
+
+    // Save the current chatId to localStorage.
+    function saveChatId() {
+        localStorage.setItem('chatId', chatId);
+    }
+
+    // Generate a new unique chat id.
+    function generateUniqueId() {
+        return Math.floor(Math.random() * 10000);
     }
 
     // Render markdown content into HTML.
@@ -260,11 +272,35 @@
         hljs.highlightAll();
     }
 
-    // Load chat history.
+    // Load chat history into the chat log.
     function loadChatHistory() {
         chatHistory.forEach(msg => {
             appendMessage(msg.role, msg.text, false);
         });
+    }
+
+    // Clear chat history, generate a new chatId, and reset server-side chat memory.
+    async function newChat() {
+        // Generate and save a new unique chat id.
+        chatId = generateUniqueId();
+        saveChatId();
+        console.log("New chat session started with ID:", chatId);
+
+        // Reset server-side chat memory.
+        try {
+            const response = await fetch(`http://localhost:8080/chat/completions?chatId=${chatId}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) {
+                console.error('Failed to reset chat memory on the server.');
+            }
+        } catch (error) {
+            console.error('Error resetting chat memory:', error);
+        }
+        // Clear local chat history and UI.
+        chatHistory = [];
+        saveChatHistory();
+        document.getElementById('chatLog').innerHTML = '';
     }
 
     // Send a message (with file attachment if provided) to the API.
@@ -276,13 +312,19 @@
 
         if (!text && !file) return;
 
+        // Ensure there is a valid chat session.
+        if (!chatId) {
+            newChat();
+        }
+
         console.log("sendMessage triggered with text:", text);
         appendMessage('user', text || "[File attachment]");
         input.value = '';
 
         let formData = new FormData();
         formData.append('model', 'gpt-4o');
-        formData.append('message', JSON.stringify({ role: 'user', content: text }));
+        formData.append('chatId', chatId);  // Include the unique chat id in every request.
+        formData.append('message', JSON.stringify({ role: 'user', content: text + ". Your chatId is " + chatId }));
         if (file) {
             formData.append('file', file);
         }
@@ -307,23 +349,6 @@
         document.getElementById('fileName').innerText = "";
     }
 
-    // Clear chat history and reset server-side chat memory.
-    async function newChat() {
-        try {
-            const response = await fetch('http://localhost:8080/chat/completions', {
-                method: 'DELETE'
-            });
-            if (!response.ok) {
-                console.error('Failed to reset chat memory on the server.');
-            }
-        } catch (error) {
-            console.error('Error resetting chat memory:', error);
-        }
-        chatHistory = [];
-        saveChatHistory();
-        document.getElementById('chatLog').innerHTML = '';
-    }
-
     // Send message on Enter key press.
     document.getElementById('messageInput').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
@@ -341,7 +366,11 @@
         }
     });
 
+    // Load the chat history. If there is no existing chat id, initiate a new chat session.
     loadChatHistory();
+    if (!chatId) {
+        newChat();
+    }
 </script>
 </body>
 </html>

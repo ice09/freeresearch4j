@@ -19,15 +19,16 @@ public class OCRTool {
 
     private final RestTemplate restTemplate;
     private final String mistralApiKey;
-    private byte[] pdfAsBytes;
+    Map<Integer, byte[]> pdfAsByteForChat;
 
-    public OCRTool(RestTemplate restTemplate, @Value("${mistralai.key}") String mistralApiKey) {
+    public OCRTool(RestTemplate restTemplate, @Value("${mistralai.apikey}") String mistralApiKey) {
         this.restTemplate = restTemplate;
         this.mistralApiKey = mistralApiKey;
+        pdfAsByteForChat = new HashMap<>();
     }
 
-    @Tool("Extracts text from a PDF. Call if text extraction is requested. Use the result in your answer.")
-    public String extractTextFromPDF() {
+    @Tool("Extracts text from a PDF. Call if text extraction is requested. Use the result in your answer. You always have to provide the chatId you received as the method argument.")
+    public String extractTextFromPDF(String chatId) {
         // --- Step 1: Upload file ---
         String uploadUrl = "https://api.mistral.ai/v1/files";
         HttpHeaders uploadHeaders = new HttpHeaders();
@@ -38,7 +39,7 @@ public class OCRTool {
         uploadBody.add("purpose", "ocr");
 
         // Wrap the file in a ByteArrayResource to be sent with RestTemplate
-        ByteArrayResource fileAsResource = new ByteArrayResource(pdfAsBytes) {
+        ByteArrayResource fileAsResource = new ByteArrayResource(pdfAsByteForChat.get(Integer.parseInt(chatId))) {
             @Override
             public String getFilename() {
                 return "file.pdf";
@@ -111,7 +112,7 @@ public class OCRTool {
         }
     }
 
-    public void setPdfAsBytes(byte[] pdfAsBytes) {
-        this.pdfAsBytes = pdfAsBytes;
+    public void setPdfAsBytes(Integer chatId, byte[] pdfAsBytes) {
+        pdfAsByteForChat.put(chatId, pdfAsBytes);
     }
 }
