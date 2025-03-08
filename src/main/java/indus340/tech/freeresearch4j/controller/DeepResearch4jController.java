@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import indus340.tech.freeresearch4j.engine.Assistant;
 import indus340.tech.freeresearch4j.tools.OCRTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,8 @@ import java.util.UUID;
 @RequestMapping("/v1")
 @CrossOrigin(origins = "*")
 public class DeepResearch4jController {
+
+    private static final Logger logger = LoggerFactory.getLogger(DeepResearch4jController.class);
 
     private final Assistant assistant;
     private final ChatMemoryProvider chatMemoryProvider;
@@ -59,7 +63,7 @@ public class DeepResearch4jController {
                     "gpt-4o-mini",
                     List.of(new Choice(new Message(answer, "assistant"), 0))
             );
-            System.out.println("FINAL RESPONSE: \n" + response);
+            logger.info("FINAL RESPONSE: {}", response);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

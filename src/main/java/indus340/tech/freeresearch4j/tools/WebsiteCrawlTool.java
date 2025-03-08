@@ -3,6 +3,8 @@ package indus340.tech.freeresearch4j.tools;
 import dev.langchain4j.agent.tool.Tool;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class WebsiteCrawlTool {
+
+    private static final Logger logger = LoggerFactory.getLogger(WebsiteCrawlTool.class);
 
     /**
      * Crawls the specified URL and returns its HTML content.
@@ -19,7 +23,7 @@ public class WebsiteCrawlTool {
      */
     @Tool("Fetches the HTML content as text from the provided URL")
     public String crawl(String url) {
-        System.out.println(("CRAWL: " + url));
+        logger.info("CRAWL: {}", url);
         try {
             // Connect to the URL and fetch the document.
             Document doc = Jsoup.connect(url)
@@ -29,7 +33,7 @@ public class WebsiteCrawlTool {
             return doc.text();
         } catch (Exception e) {
             // In a production system, consider logging the error rather than printing the stack trace.
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
             return "no result";
         }
     }
