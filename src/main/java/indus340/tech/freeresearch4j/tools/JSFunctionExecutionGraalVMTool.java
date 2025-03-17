@@ -1,7 +1,6 @@
 package indus340.tech.freeresearch4j.tools;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agent.tool.Tool;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
@@ -12,10 +11,10 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-@Service
-public class JSFunctionExecutionTool {
+//@Service
+public class JSFunctionExecutionGraalVMTool {
 
-    private static final Logger logger = LoggerFactory.getLogger(JSFunctionExecutionTool.class);
+    private static final Logger logger = LoggerFactory.getLogger(JSFunctionExecutionGraalVMTool.class);
 
     @Tool("Executes arbitrary JavaScript code without dependencies. Can use a Map<Object, Object> kvStore to store data for other steps and read data from other steps.")
     public String executeJs(String jsCode) {

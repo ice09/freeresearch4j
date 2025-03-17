@@ -216,6 +216,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 
 <script>
+    function openHtmlResponse(htmlContent) {
+        const newWindow = window.open();
+        newWindow.document.open();
+        newWindow.document.write(htmlContent);
+        newWindow.document.close();
+    }
     // Configure Marked.js to use Highlight.js for code blocks.
     marked.setOptions({
         highlight: function(code, lang) {
@@ -337,7 +343,32 @@
             if (!response.ok) throw new Error('Network error');
             const data = await response.json();
             const assistantMsg = data.choices?.[0]?.message?.content;
-            appendMessage('assistant', assistantMsg || 'No response from API.');
+            if (assistantMsg && assistantMsg.includes('html')) {
+                // Create a button to let the user open the HTML response in a new window
+                const chatLog = document.getElementById('chatLog');
+                const button = document.createElement('button');
+                button.innerText = 'Open HTML Response';
+                button.style.marginTop = '10px';
+                button.style.border = 'none';
+                button.style.backgroundColor = '#696969';
+                button.style.color = '#fff';
+                button.style.padding = '10px 20px';
+                button.style.cursor = 'pointer';
+                button.style.fontSize = '16px';
+                button.style.borderRadius = '8px';
+                button.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
+                // Hover effects to match the other buttons
+                button.addEventListener('mouseenter', () => {
+                    button.style.backgroundColor = '#0056b3';
+                });
+                button.addEventListener('mouseleave', () => {
+                    button.style.backgroundColor = '#696969';
+                });
+                button.addEventListener('click', () => openHtmlResponse(assistantMsg));
+                chatLog.appendChild(button);
+            } else {
+                appendMessage('assistant', assistantMsg || 'No response from API.');
+            }
         } catch (error) {
             console.error("Fetch error:", error);
             setTimeout(() => {

@@ -4,14 +4,13 @@ import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.mistralai.MistralAiChatModel;
+import dev.langchain4j.model.mistralai.MistralAiChatModelName;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import indus340.tech.freeresearch4j.engine.Assistant;
-import indus340.tech.freeresearch4j.tools.GoogleSearchTool;
-import indus340.tech.freeresearch4j.tools.JSFunctionExecutionTool;
-import indus340.tech.freeresearch4j.tools.OCRTool;
-import indus340.tech.freeresearch4j.tools.WebsiteCrawlTool;
+import indus340.tech.freeresearch4j.tools.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,19 +26,25 @@ import static java.time.Duration.ofSeconds;
 @Configuration
 public class ToolEngineConfig {
 
-    @Value("${openai.apikey}")
-    private String openrouterApiKey;
+    private final String openAiApiKey;
+    private final String mistralApiKey;
 
     private final GoogleSearchTool googleSearchTool;
-    private final JSFunctionExecutionTool jsFunctionExecutionTool;
+    private final JSFunctionExecutionExternalJSTool jsFunctionExecutionExternalJSTool;
     private final WebsiteCrawlTool websiteCrawlTool;
     private final OCRTool ocrTool;
+    private final DynamicBrowserAgent dynamicBrowserAgent;
 
-    public ToolEngineConfig(GoogleSearchTool googleSearchTool, JSFunctionExecutionTool jsFunctionExecutionTool, WebsiteCrawlTool websiteCrawlTool, OCRTool ocrTool) {
+    public ToolEngineConfig(@Value("${openai.apikey}") String openAiApiKey,
+                            @Value("${mistralai.chat.apikey}") String mistralApiKey,
+                            GoogleSearchTool googleSearchTool, JSFunctionExecutionExternalJSTool jsFunctionExecutionExternalJSTool, WebsiteCrawlTool websiteCrawlTool, OCRTool ocrTool, DynamicBrowserAgent dynamicBrowserAgent) {
+        this.openAiApiKey = openAiApiKey;
+        this.mistralApiKey = mistralApiKey;
         this.googleSearchTool = googleSearchTool;
-        this.jsFunctionExecutionTool = jsFunctionExecutionTool;
+        this.jsFunctionExecutionExternalJSTool = jsFunctionExecutionExternalJSTool;
         this.websiteCrawlTool = websiteCrawlTool;
         this.ocrTool = ocrTool;
+        this.dynamicBrowserAgent = dynamicBrowserAgent;
     }
 
     @Bean
@@ -54,10 +59,9 @@ public class ToolEngineConfig {
     }
 
     @Bean
-    public Assistant engineModel() {
-
+    public Assistant openAiEngineModel() {
         ChatLanguageModel llm = OpenAiChatModel.builder()
-                .apiKey(openrouterApiKey)
+                .apiKey(openAiApiKey)
                 .modelName(GPT_4_O_MINI)
                 .strictTools(true)
                 .timeout(ofSeconds(360))
@@ -67,7 +71,24 @@ public class ToolEngineConfig {
 
         return AiServices.builder(Assistant.class)
                 .chatLanguageModel(llm)
-                .tools(googleSearchTool, jsFunctionExecutionTool, websiteCrawlTool, ocrTool)
+                .tools(googleSearchTool, jsFunctionExecutionExternalJSTool, dynamicBrowserAgent, ocrTool)
+                .chatMemoryProvider(chatMemoryProvider())
+                .build();
+    }
+
+    //@Bean
+    public Assistant mistralEngineModel() {
+        ChatLanguageModel llm = MistralAiChatModel.builder()
+                .apiKey(mistralApiKey)
+                .modelName(MistralAiChatModelName.MISTRAL_SMALL_LATEST)
+                .timeout(ofSeconds(360))
+                .logRequests(false)
+                .logResponses(false)
+                .build();
+
+        return AiServices.builder(Assistant.class)
+                .chatLanguageModel(llm)
+                .tools(googleSearchTool, jsFunctionExecutionExternalJSTool, dynamicBrowserAgent, ocrTool)
                 .chatMemoryProvider(chatMemoryProvider())
                 .build();
     }

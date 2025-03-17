@@ -11,3 +11,33 @@ Content-Type: application/json
     }
   ]
 }
+
+Financial Data Analysis and Reporting
+"I need to fetch current stock data for AAPL from a financial API and calculate the percentage change from its opening price to the current price. Please include a timestamp in the result and store the metrics for later review."
+
+Web Content Summarization
+"Can you retrieve the latest BBC article and summarize its key points in a few sentences? I’d like a brief, clear summary of the main ideas."
+
+PDF Document Analysis
+"I have a PDF document that contains a research paper. Please extract the text from the PDF and perform a word frequency analysis, excluding common words like 'the', 'and', 'of'. Return the most frequent terms."
+
+Website Uptime Monitoring
+"I want to monitor the uptime of https://example.com. Could you perform an HTTP GET request to check its status, log the response time along with the current timestamp, and store this log data?"
+
+Social Media Sentiment Analysis
+"Please fetch the latest posts from my Twitter feed and analyze the sentiment. Count the number of positive words (like 'good', 'happy') and negative words (like 'bad', 'sad') in the posts, and provide a summary of the overall sentiment."
+
+Scientific Data Computation and Logging
+"I’m running a simple simulation that sums numbers from 1 to 10 iteratively. Can you compute the running total for each iteration, log each step with a timestamp, and then return both the final sum and the complete log?"
+
+News Aggregation and Summarization
+"I'd like to aggregate headlines from top tech news sites. Please search for recent tech news, fetch a few articles, extract the headlines, and create a summary report that lists all the headlines."
+
+Interactive Chatbot Answer Generation
+"I need to integrate live weather data into my chatbot’s responses. Can you process the weather data (assume a JSON payload with a 'temperature' field), determine if it's 'hot' or 'cool', and then generate a friendly response based on the current temperature?"
+
+E-commerce Price Comparison
+"I'm comparing prices for a new smartphone across multiple online stores. Please extract the price information from each store’s data, compare them using basic math operations, and tell me which store offers the best deal."
+
+Log Analysis and Reporting
+"I have a server log with entries like 'INFO: User logged in' and 'ERROR: Failed to load resource'. Can you analyze the log file to calculate the total number of entries, count how many are errors, compute the error rate, and generate a summary report?"

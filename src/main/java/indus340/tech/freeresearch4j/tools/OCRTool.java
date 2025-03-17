@@ -21,7 +21,7 @@ public class OCRTool {
     private final String mistralApiKey;
     Map<Integer, byte[]> pdfAsByteForChat;
 
-    public OCRTool(RestTemplate restTemplate, @Value("${mistralai.apikey}") String mistralApiKey) {
+    public OCRTool(RestTemplate restTemplate, @Value("${mistralai.chat.apikey}") String mistralApiKey) {
         this.restTemplate = restTemplate;
         this.mistralApiKey = mistralApiKey;
         pdfAsByteForChat = new HashMap<>();
