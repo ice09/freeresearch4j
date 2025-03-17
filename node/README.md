@@ -17,7 +17,21 @@ This project provides a Node.js-based REST API that executes arbitrary JavaScrip
 
 ### Steps
 
-#### 1. Start the Server
+#### Create and install dependencies
+
+```bash
+npm init -y
+```
+
+```bash
+npm install
+```
+
+```bash
+npm install express
+```
+
+#### Start the Server
    
 Run the following command to start the server:
 
@@ -31,7 +45,7 @@ You should see the output:
 Server running at http://localhost:3000
 ```
 
-#### 2. Test the Endpoint
+#### Test the Endpoint
 
 You can test the API using a tool like Postman or via the command line with curl.
 
@@ -44,7 +58,7 @@ curl -X POST http://localhost:3000/execute \
 
 The server will execute the provided JavaScript code and return a JSON response with the result and the chatId.
 
-#### 3. Debugging
+#### Debugging
 
 The server logs detailed information for each execution request:
 
