@@ -294,7 +294,7 @@
 
         // Reset server-side chat memory.
         try {
-            const response = await fetch(`http://localhost:8080/chat/completions?chatId=${chatId}`, {
+            const response = await fetch(`/chat/completions?chatId=${chatId}`, {
                 method: 'DELETE'
             });
             if (!response.ok) {
@@ -336,7 +336,7 @@
         }
 
         try {
-            const response = await fetch('http://localhost:8080/v1/chat/completions', {
+            const response = await fetch('/v1/chat/completions', {
                 method: 'POST',
                 body: formData
             });
